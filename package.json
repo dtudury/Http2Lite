@@ -1,0 +1,24 @@
+{
+  "name": "http2lite",
+  "version": "0.0.0",
+  "description": "http2 in browser streams",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dtudury/Http2Lite.git"
+  },
+  "author": "David Tudury <david.tudury@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/dtudury/Http2Lite/issues"
+  },
+  "homepage": "https://github.com/dtudury/Http2Lite#readme",
+  "dependencies": {
+    "cache": "^2.1.0",
+    "hpacklite": "0.0.0",
+    "stream-browserify": "^2.0.1"
+  }
+}
