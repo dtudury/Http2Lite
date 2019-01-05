@@ -7,8 +7,8 @@ describe('Http2Lite', () => {
   describe('full single frames', () => {
     let client
     describe('constructor', () => {
-      client = new Http2Lite(1)
-      it('should create something', () => {
+      client = new Http2Lite()
+      it('should not fail', () => {
         expect(client).not.equal(undefined)
       })
     })
@@ -32,7 +32,7 @@ describe('Http2Lite', () => {
       const headers1 = { a: 1, b: 2 }
       const clientReq = client.createVirtualStream()
       it('should send headers from end to end', () => {
-        clientReq.writeHeaders(headers1)
+        clientReq.writeHeaders(headers1, false, false, 0, 1, 0, false)
         expect(headers1).to.deep.equal(serverHeadersByStream[clientReq.streamId])
       })
       const headers2 = { b: 3, c: 4 }
@@ -57,6 +57,13 @@ describe('Http2Lite', () => {
       })
     })
   })
+  describe('too large of a payload', () => {
+    const client = new Http2Lite(1)
+    const clientReq = client.createVirtualStream()
+    it('should throw when too large of a payload is written', () => {
+      expect(() => clientReq.writeData(Buffer.allocUnsafe(0x1000000))).to.throw()
+    })
+  })
   describe('partial and multiple frames', () => {
     const client = new Http2Lite(1)
     let clientOutgoingFrame = Buffer.alloc(0)
@@ -77,9 +84,13 @@ describe('Http2Lite', () => {
     clientReq.writeData(Buffer.from('c'))
     clientReq.writeData(Buffer.from('d'))
     clientReq.writeData(Buffer.from('e'), true)
+    const barelyStarted = 10
     const halfway = Math.round(clientOutgoingFrame.length / 2)
+    it('should understand nothing without the header', () => {
+      server.writeFrame(clientOutgoingFrame.slice(0, barelyStarted))
+    })
     it('should understand the first 2 when sent the first 2.5 frames concatenated', () => {
-      server.writeFrame(clientOutgoingFrame.slice(0, halfway))
+      server.writeFrame(clientOutgoingFrame.slice(barelyStarted, halfway))
       expect(serverDataByStream[clientReq.streamId].toString()).to.equal('ab')
     })
     it('should understand all 5 when sent the remaining 2.5 frames concatenated', () => {
@@ -110,7 +121,7 @@ describe('Http2Lite', () => {
       expect(receivedFlags[0].isPadded).to.equal(false)
     })
     const padLength = 5
-    clientReq.writeHeaders(headers, false, false, padLength)
+    clientReq.writeHeaders(headers, false, true, padLength, 0, 0, false)
     it('should increase the framesize by the padLength + 1 when padLength is set', () => {
       expect(sentFrames[1].length - sentFrames[0].length).to.equal(padLength + 1)
     })
