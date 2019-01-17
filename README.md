@@ -1,2 +1,3 @@
+[![Build Status](https://travis-ci.com/dtudury/Http2Lite.svg?branch=master)](https://travis-ci.com/dtudury/Http2Lite)
 # Http2Lite
-http2 in browser streams
+tools for DIY http2
