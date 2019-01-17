@@ -30,7 +30,7 @@ describe('H2LSession', () => {
     })
     describe('#writeHeaders()', () => {
       const headers1 = { a: 1, b: 2 }
-      const clientReq = client.createVirtualStream()
+      const clientReq = client.request()
       it('should send headers from end to end', () => {
         clientReq.writeHeaders(headers1, false, false, 0, 1, 0, false)
         expect(headers1).to.deep.equal(serverHeadersByStream[clientReq.streamId])
@@ -44,7 +44,7 @@ describe('H2LSession', () => {
       })
     })
     describe('#writeData()', () => {
-      const clientReq = client.createVirtualStream()
+      const clientReq = client.request()
       const part1 = Buffer.from('hello ')
       it('should send data from end to end', () => {
         clientReq.writeData(part1)
@@ -59,7 +59,7 @@ describe('H2LSession', () => {
   })
   describe('too large of a payload', () => {
     const client = new H2LSession(1)
-    const clientReq = client.createVirtualStream()
+    const clientReq = client.request()
     it('should throw when too large of a payload is written', () => {
       expect(() => clientReq.writeData(Buffer.allocUnsafe(0x1000000))).to.throw()
     })
@@ -78,7 +78,7 @@ describe('H2LSession', () => {
         serverDataByStream[h2LStream.streamId] = Buffer.concat([oldData, data])
       })
     })
-    const clientReq = client.createVirtualStream()
+    const clientReq = client.request()
     clientReq.writeData(Buffer.from('a'), false, 5)
     clientReq.writeData(Buffer.from('b'))
     clientReq.writeData(Buffer.from('c'))
@@ -114,7 +114,7 @@ describe('H2LSession', () => {
         receivedFlags.push(flags)
       })
     })
-    const clientReq = client.createVirtualStream()
+    const clientReq = client.request()
     const headers = { a: 1 }
     clientReq.writeHeaders(headers)
     it('should default to no padding', () => {
@@ -153,7 +153,7 @@ describe('H2LSession', () => {
       })
     })
     const headers = { a: 1 }
-    const clientReq = client.createVirtualStream()
+    const clientReq = client.request()
     const sentPriority = 20
     const sentStreamDependency = 100
     const sentIsExclusive = true

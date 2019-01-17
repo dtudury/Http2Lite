@@ -1,6 +1,6 @@
 {
   "name": "http2lite",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "http2 in browser streams",
   "main": "index.js",
   "scripts": {
