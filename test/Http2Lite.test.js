@@ -1,31 +1,31 @@
 /* globals describe it */
-const Http2Lite = require('../lib')
-const { VSTREAM, FRAME, DATA, HEADERS, PING } = require('../lib/constants')
+const H2LSession = require('../lib/H2LSession')
+const { H2LSTREAM, FRAME, DATA, HEADERS, PING } = require('../lib/constants')
 const { expect } = require('chai')
 
-describe('Http2Lite', () => {
+describe('H2LSession', () => {
   describe('full single frames', () => {
     let client
     describe('constructor', () => {
-      client = new Http2Lite()
+      client = new H2LSession()
       it('should not fail', () => {
         expect(client).not.equal(undefined)
       })
     })
-    const server = new Http2Lite(2)
+    const server = new H2LSession(2)
     const serverHeadersByStream = {}
     const serverDataByStream = {}
     client.on(FRAME, frame => {
       server.writeFrame(frame)
     })
-    server.on(VSTREAM, vStream => {
-      vStream.on(HEADERS, headers => {
-        const oldHeaders = serverHeadersByStream[vStream.streamId] || {}
-        serverHeadersByStream[vStream.streamId] = Object.assign(oldHeaders, headers)
+    server.on(H2LSTREAM, h2LStream => {
+      h2LStream.on(HEADERS, headers => {
+        const oldHeaders = serverHeadersByStream[h2LStream.streamId] || {}
+        serverHeadersByStream[h2LStream.streamId] = Object.assign(oldHeaders, headers)
       })
-      vStream.on(DATA, data => {
-        const oldData = serverDataByStream[vStream.streamId] || Buffer.alloc(0)
-        serverDataByStream[vStream.streamId] = Buffer.concat([oldData, data])
+      h2LStream.on(DATA, data => {
+        const oldData = serverDataByStream[h2LStream.streamId] || Buffer.alloc(0)
+        serverDataByStream[h2LStream.streamId] = Buffer.concat([oldData, data])
       })
     })
     describe('#writeHeaders()', () => {
@@ -58,24 +58,24 @@ describe('Http2Lite', () => {
     })
   })
   describe('too large of a payload', () => {
-    const client = new Http2Lite(1)
+    const client = new H2LSession(1)
     const clientReq = client.createVirtualStream()
     it('should throw when too large of a payload is written', () => {
       expect(() => clientReq.writeData(Buffer.allocUnsafe(0x1000000))).to.throw()
     })
   })
   describe('partial and multiple frames', () => {
-    const client = new Http2Lite(1)
+    const client = new H2LSession(1)
     let clientOutgoingFrame = Buffer.alloc(0)
-    const server = new Http2Lite(2)
+    const server = new H2LSession(2)
     const serverDataByStream = {}
     client.on(FRAME, frame => {
       clientOutgoingFrame = Buffer.concat([clientOutgoingFrame, frame])
     })
-    server.on(VSTREAM, vStream => {
-      vStream.on(DATA, (data, flags) => {
-        const oldData = serverDataByStream[vStream.streamId] || Buffer.alloc(0)
-        serverDataByStream[vStream.streamId] = Buffer.concat([oldData, data])
+    server.on(H2LSTREAM, h2LStream => {
+      h2LStream.on(DATA, (data, flags) => {
+        const oldData = serverDataByStream[h2LStream.streamId] || Buffer.alloc(0)
+        serverDataByStream[h2LStream.streamId] = Buffer.concat([oldData, data])
       })
     })
     const clientReq = client.createVirtualStream()
@@ -99,8 +99,8 @@ describe('Http2Lite', () => {
     })
   })
   describe('padding', () => {
-    const client = new Http2Lite(1)
-    const server = new Http2Lite(2)
+    const client = new H2LSession(1)
+    const server = new H2LSession(2)
     const sentFrames = []
     const receivedHeaders = []
     const receivedFlags = []
@@ -108,8 +108,8 @@ describe('Http2Lite', () => {
       sentFrames.push(frame)
       server.writeFrame(frame)
     })
-    server.on(VSTREAM, vStream => {
-      vStream.on(HEADERS, (headers, flags) => {
+    server.on(H2LSTREAM, h2LStream => {
+      h2LStream.on(HEADERS, (headers, flags) => {
         receivedHeaders.push(headers)
         receivedFlags.push(flags)
       })
@@ -130,8 +130,8 @@ describe('Http2Lite', () => {
     })
   })
   describe('priority', () => {
-    const client = new Http2Lite(1)
-    const server = new Http2Lite(2)
+    const client = new H2LSession(1)
+    const server = new H2LSession(2)
     const sentFrames = []
     const receivedDatas = []
     const receivedHeaders = []
@@ -141,12 +141,12 @@ describe('Http2Lite', () => {
       sentFrames.push(frame)
       server.writeFrame(frame)
     })
-    server.on(VSTREAM, vStream => {
-      vStream.on(DATA, (data, flags) => {
+    server.on(H2LSTREAM, h2LStream => {
+      h2LStream.on(DATA, (data, flags) => {
         receivedDatas.push(data)
         receivedFlags.push(flags)
       })
-      vStream.on(HEADERS, (headers, flags, priority) => {
+      h2LStream.on(HEADERS, (headers, flags, priority) => {
         receivedHeaders.push(headers)
         receivedFlags.push(flags)
         receivedPriorities.push(priority)
@@ -169,8 +169,8 @@ describe('Http2Lite', () => {
     })
   })
   describe('ping', () => {
-    const client = new Http2Lite(1)
-    const server = new Http2Lite(2)
+    const client = new H2LSession(1)
+    const server = new H2LSession(2)
     const sentFrames = []
     const receivedPings = []
     const receivedFlags = []
@@ -178,7 +178,7 @@ describe('Http2Lite', () => {
       sentFrames.push(frame)
       server.writeFrame(frame)
     })
-    server.vStream.on(PING, (data, flags) => {
+    server.h2LStream.on(PING, (data, flags) => {
       receivedPings.push(data)
       receivedFlags.push(flags)
     })
@@ -186,8 +186,8 @@ describe('Http2Lite', () => {
       Buffer.from([1, 2, 3, 4, 5, 6, 7, 8]),
       Buffer.from([8, 7, 6, 5, 4, 3, 2, 1])
     ]
-    client.vStream.writePing(payloads[0])
-    client.vStream.writePing(payloads[1], true)
+    client.h2LStream.writePing(payloads[0])
+    client.h2LStream.writePing(payloads[1], true)
     it('should send pings with the right ACK flag', () => {
       expect(receivedFlags[0].isAck).to.equal(false)
       expect(receivedFlags[1].isAck).to.equal(true)
