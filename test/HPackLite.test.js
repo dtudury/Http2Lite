@@ -52,10 +52,10 @@ describe('HPackLite.utils', () => {
         bytes.push(i)
       }
       for (let i = 0; i < 10000; i++) {
-        bytes.push(Math.floor(Math.random() * 256))
+        bytes.push(i % 256)
       }
       for (let i = 0; i < 8; i++) {
-        bytes.push(Math.floor(Math.random() * 256))
+        bytes.push(i)
         const buffer = Buffer.from(bytes)
         const encoded = encodeHuffman(buffer)
         const decoded = decodeHuffman(encoded)
