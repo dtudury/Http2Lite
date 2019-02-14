@@ -51,7 +51,7 @@ describe('HPackLite.utils', () => {
       for (let i = 0; i <= 0xff; i++) {
         bytes.push(i)
       }
-      for (let i = 0; i < 1000; i++) {
+      for (let i = 0; i <= 1000; i++) {
         bytes.push(i % 256)
       }
       for (let i = 0; i < 8; i++) {
