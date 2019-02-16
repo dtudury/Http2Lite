@@ -1,9 +1,13 @@
 /* globals describe it */
 const { decodeInteger, encodeInteger, decodeHuffman, encodeHuffman, decodeStringLiteral, encodeStringLiteral, decodeHeader, encodeHeader } = require('../lib/utils/index')
 const { INDEXED, INCREMENTAL, SIZE_UPDATE, NOT_INDEXED, NEVER_INDEXED } = require('../lib/constants')
-const { Buffer } = require('buffer')
 const ui8aHelpers = require('../lib/utils/ui8aHelpers')
 const { expect } = require('chai')
+
+function ui8aFromString (string) {
+  return ui8aHelpers.fromCharArray(string.split('').map(char => char.charCodeAt(0)))
+}
+
 describe('HPackLite.utils', () => {
   describe('decodeInteger', () => {
     it('reads smallish integers', () => {
@@ -26,7 +30,7 @@ describe('HPackLite.utils', () => {
     it('reads largeish integers ignoring bytes after end', () => {
       expect(decodeInteger(ui8aHelpers.fromCharArray([0xff, 0x9a, 0x0a, 0xff]), 3).value).to.equal(1337)
     })
-    it('throws if it runs out of buffer', () => {
+    it('throws if it runs out of ui8a', () => {
       expect(() => {
         decodeInteger(ui8aHelpers.fromCharArray([0xff, 0xff, 0xff]), 3)
       }).to.throw()
@@ -57,17 +61,16 @@ describe('HPackLite.utils', () => {
       }
       for (let i = 0; i < 8; i++) {
         bytes.push(i)
-        const buffer = Buffer.from(bytes)
-        const encoded = encodeHuffman(buffer)
+        const ui8a = ui8aHelpers.fromCharArray(bytes)
+        const encoded = encodeHuffman(ui8a)
         const decoded = decodeHuffman(encoded)
-        expect(decoded).to.deep.equal(buffer)
+        expect(decoded).to.deep.equal(ui8a)
       }
     })
   })
-  /*
   describe('encode/decode StringLiteral', () => {
     it('decodes strings it encodes', () => {
-      const a = Buffer.from('hello ', 'utf8')
+      const a = ui8aFromString('hello ')
       const encoded = encodeStringLiteral(false, a)
       const decoded = decodeStringLiteral(encoded)
       expect(a).to.deep.equal(decoded.stringLiteral)
@@ -79,8 +82,8 @@ describe('HPackLite.utils', () => {
     })
   })
   describe('encode/decode Header', () => {
-    const name = Buffer.from('name', 'utf8')
-    const value = Buffer.from('value', 'utf8')
+    const name = ui8aFromString('name')
+    const value = ui8aFromString('value')
     const encodedName = encodeStringLiteral(false, name)
     const encodedValue = encodeStringLiteral(false, value)
     it('decodes indexed headers', () => {
@@ -128,5 +131,4 @@ describe('HPackLite.utils', () => {
       expect(() => encodeHeader(1)).to.throw()
     })
   })
-  */
 })

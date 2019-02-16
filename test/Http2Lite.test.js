@@ -1,7 +1,12 @@
 /* globals describe it */
 const H2LSession = require('../lib/H2LSession')
 const { H2LSTREAM, FRAME, DATA, HEADERS, PING } = require('../lib/constants')
+const ui8aHelpers = require('../lib/utils/ui8aHelpers')
 const { expect } = require('chai')
+
+function ui8aFromString (string) {
+  return ui8aHelpers.fromCharArray(string.split('').map(char => char.charCodeAt(0)))
+}
 
 describe('H2LSession', () => {
   describe('full single frames', () => {
