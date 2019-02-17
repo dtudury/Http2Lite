@@ -1,50 +1,49 @@
 /* globals describe it */
 const { decodeInteger, encodeInteger, decodeHuffman, encodeHuffman, decodeStringLiteral, encodeStringLiteral, decodeHeader, encodeHeader } = require('../lib/utils/index')
 const { INDEXED, INCREMENTAL, SIZE_UPDATE, NOT_INDEXED, NEVER_INDEXED } = require('../lib/constants')
-const ui8aHelpers = require('../lib/utils/ui8aHelpers')
 const { expect } = require('chai')
 
 function ui8aFromString (string) {
-  return ui8aHelpers.fromCharArray(string.split('').map(char => char.charCodeAt(0)))
+  return new Uint8Array(string.split('').map(char => char.charCodeAt(0)))
 }
 
 describe('HPackLite.utils', () => {
   describe('decodeInteger', () => {
     it('reads smallish integers', () => {
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0x0a]), 3).value).to.equal(10)
+      expect(decodeInteger(new Uint8Array([0x0a]), 3).value).to.equal(10)
     })
     it('reads smallish integers ignoring bits before start', () => {
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0x8a]), 3).value).to.equal(10)
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0xca]), 3).value).to.equal(10)
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0xea]), 3).value).to.equal(10)
+      expect(decodeInteger(new Uint8Array([0x8a]), 3).value).to.equal(10)
+      expect(decodeInteger(new Uint8Array([0xca]), 3).value).to.equal(10)
+      expect(decodeInteger(new Uint8Array([0xea]), 3).value).to.equal(10)
     })
     it('reads smallish integers ignoring bytes after end', () => {
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0x0a, 0xff]), 3).value).to.equal(10)
+      expect(decodeInteger(new Uint8Array([0x0a, 0xff]), 3).value).to.equal(10)
     })
     it('reads largeish integers', () => {
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0x1f, 0x9a, 0x0a]), 3).value).to.equal(1337)
+      expect(decodeInteger(new Uint8Array([0x1f, 0x9a, 0x0a]), 3).value).to.equal(1337)
     })
     it('reads largeish integers ignoring bits before start', () => {
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0xff, 0x9a, 0x0a]), 3).value).to.equal(1337)
+      expect(decodeInteger(new Uint8Array([0xff, 0x9a, 0x0a]), 3).value).to.equal(1337)
     })
     it('reads largeish integers ignoring bytes after end', () => {
-      expect(decodeInteger(ui8aHelpers.fromCharArray([0xff, 0x9a, 0x0a, 0xff]), 3).value).to.equal(1337)
+      expect(decodeInteger(new Uint8Array([0xff, 0x9a, 0x0a, 0xff]), 3).value).to.equal(1337)
     })
     it('throws if it runs out of ui8a', () => {
       expect(() => {
-        decodeInteger(ui8aHelpers.fromCharArray([0xff, 0xff, 0xff]), 3)
+        decodeInteger(new Uint8Array([0xff, 0xff, 0xff]), 3)
       }).to.throw()
     })
   })
   describe('encodeInteger', () => {
     it('writes smallish integers', () => {
-      expect(encodeInteger(0xe0, 3, 10)).to.deep.equal(ui8aHelpers.fromCharArray([0xea]))
+      expect(encodeInteger(0xe0, 3, 10)).to.deep.equal(new Uint8Array([0xea]))
     })
     it('writes largeish integers', () => {
-      expect(encodeInteger(0xe0, 3, 1337)).to.deep.equal(ui8aHelpers.fromCharArray([0xff, 0x9a, 0x0a]))
+      expect(encodeInteger(0xe0, 3, 1337)).to.deep.equal(new Uint8Array([0xff, 0x9a, 0x0a]))
     })
     it('writes smallish integers on octet boundaries', () => {
-      expect(encodeInteger(0x0, 0, 42)).to.deep.equal(ui8aHelpers.fromCharArray([0x2a]))
+      expect(encodeInteger(0x0, 0, 42)).to.deep.equal(new Uint8Array([0x2a]))
     })
     it('throws when you pass it an integer bigger than it\'s mask', () => {
       expect(() => encodeInteger(0xff, 3, 0)).to.throw()
@@ -61,7 +60,7 @@ describe('HPackLite.utils', () => {
       }
       for (let i = 0; i < 8; i++) {
         bytes.push(i)
-        const ui8a = ui8aHelpers.fromCharArray(bytes)
+        const ui8a = new Uint8Array(bytes)
         const encoded = encodeHuffman(ui8a)
         const decoded = decodeHuffman(encoded)
         expect(decoded).to.deep.equal(ui8a)

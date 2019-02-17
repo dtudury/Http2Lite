@@ -28,7 +28,7 @@ describe('ui8aHelpers', () => {
   describe('readUInt8', () => {
     it('should read one byte numbers', () => {
       const array = [0, 1, 127, 128, 255]
-      const ui8a = ui8aHelpers.fromCharArray(array)
+      const ui8a = new Uint8Array(array)
       for (let i = 0; i < array.length; i++) {
         expect(ui8aHelpers.readUInt8(ui8a, i)).to.equal(array[i])
       }
@@ -39,7 +39,7 @@ describe('ui8aHelpers', () => {
     it('should read four byte big endian numbers', () => {
       const array = [0, 1, 0x7f, 0x80, 0, 0, 0, 0, 0xff, 0xff, 0xff, 0xff]
       const correctValues = [0x807f0100, 0x807f01, 0x807f, 0x80, 0, 0xff000000, 0xffff0000, 0xffffff00, 0xffffffff]
-      const ui8a = ui8aHelpers.fromCharArray(array)
+      const ui8a = new Uint8Array(array)
       for (let i = 0; i < array.length - 3; i++) {
         expect(ui8aHelpers.readUInt32BE(ui8a, i)).to.equal(correctValues[i])
       }

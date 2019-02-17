@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "karma start",
-    "test": "nyc mocha",
+    "test": "nyc --reporter=html --reporter=text mocha",
     "lint": "standard"
   },
   "repository": {
