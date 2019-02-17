@@ -145,18 +145,19 @@ describe('H2LSession', () => {
     const sentStreamDependency = 100
     const sentIsExclusive = true
     clientReq.writeHeaders(headers, false, false, 0, sentPriority, sentStreamDependency, sentIsExclusive)
-    clientReq.writeHeaders(headers, false, false, 0, sentPriority, sentStreamDependency, false)
     it('should send the prioritization data', () => {
       const { priority, streamDependency, isExclusive } = receivedPriorities[0]
       expect(sentPriority).to.equal(priority)
       expect(sentStreamDependency).to.equal(streamDependency)
       expect(sentIsExclusive).to.equal(isExclusive)
     })
+    const sentIsExclusive2 = false
+    clientReq.writeHeaders(headers, false, false, 0, sentPriority, sentStreamDependency, sentIsExclusive2)
     it('should send the prioritization data (not exclusive)', () => {
       const { priority, streamDependency, isExclusive } = receivedPriorities[1]
       expect(sentPriority).to.equal(priority)
       expect(sentStreamDependency).to.equal(streamDependency)
-      expect(false).to.equal(isExclusive)
+      expect(sentIsExclusive2).to.equal(isExclusive)
     })
     it('should send the payload unchanged regardless of priority', () => {
       expect(receivedHeaders[0]).to.deep.equal(headers)
