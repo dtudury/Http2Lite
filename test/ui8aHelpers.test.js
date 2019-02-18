@@ -35,12 +35,23 @@ describe('ui8aHelpers', () => {
     })
   })
 
+  describe('readUInt24', () => {
+    it('should read three byte big endian numbers', () => {
+      const array = [0, 1, 0x7f, 0x80, 0, 0, 0, 0xff, 0xff, 0xff]
+      const correctValues = [0x00017f, 0x017f80, 0x7f8000, 0x800000, 0x000000, 0x0000ff, 0x00ffff, 0xffffff]
+      const ui8a = new Uint8Array(array)
+      for (let i = 0; i < correctValues.length; i++) {
+        expect(ui8aHelpers.readUInt24BE(ui8a, i)).to.equal(correctValues[i])
+      }
+    })
+  })
+
   describe('readUInt32', () => {
     it('should read four byte big endian numbers', () => {
       const array = [0, 1, 0x7f, 0x80, 0, 0, 0, 0, 0xff, 0xff, 0xff, 0xff]
-      const correctValues = [0x807f0100, 0x807f01, 0x807f, 0x80, 0, 0xff000000, 0xffff0000, 0xffffff00, 0xffffffff]
+      const correctValues = [0x00017f80, 0x017f8000, 0x7f800000, 0x80000000, 0x00000000, 0x000000ff, 0x0000ffff, 0x00ffffff, 0xffffffff]
       const ui8a = new Uint8Array(array)
-      for (let i = 0; i < array.length - 3; i++) {
+      for (let i = 0; i < correctValues.length; i++) {
         expect(ui8aHelpers.readUInt32BE(ui8a, i)).to.equal(correctValues[i])
       }
     })
@@ -53,6 +64,18 @@ describe('ui8aHelpers', () => {
       expect(ui8aHelpers.readUInt8(ui8a, 0)).to.equal(0)
       expect(ui8aHelpers.readUInt8(ui8a, 1)).to.equal(5)
       expect(ui8aHelpers.readUInt8(ui8a, 2)).to.equal(0)
+    })
+  })
+
+  describe('writeUInt24BE', () => {
+    it('should set the bytes of a 24 bit int in BE order', () => {
+      const ui8a = ui8aHelpers.alloc(5)
+      ui8aHelpers.writeUInt24BE(ui8a, 0x030201, 1)
+      expect(ui8aHelpers.readUInt8(ui8a, 0)).to.equal(0)
+      expect(ui8aHelpers.readUInt8(ui8a, 1)).to.equal(3)
+      expect(ui8aHelpers.readUInt8(ui8a, 2)).to.equal(2)
+      expect(ui8aHelpers.readUInt8(ui8a, 3)).to.equal(1)
+      expect(ui8aHelpers.readUInt8(ui8a, 4)).to.equal(0)
     })
   })
 

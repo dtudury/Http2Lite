@@ -25,8 +25,8 @@ describe('H2LSession', () => {
         serverHeadersByStream[h2LStream.streamId] = Object.assign(oldHeaders, headers)
       })
       h2LStream.on(DATA, data => {
-        const oldData = serverDataByStream[h2LStream.streamId] || Buffer.alloc(0)
-        serverDataByStream[h2LStream.streamId] = Buffer.concat([oldData, data])
+        const oldData = serverDataByStream[h2LStream.streamId] || ui8aHelpers.alloc(0)
+        serverDataByStream[h2LStream.streamId] = ui8aHelpers.concat([oldData, data])
       })
     })
     describe('#writeData()', () => {

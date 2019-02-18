@@ -18,9 +18,7 @@
     "url": "https://github.com/dtudury/Http2Lite/issues"
   },
   "homepage": "https://github.com/dtudury/Http2Lite#readme",
-  "dependencies": {
-    "cache": "^2.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "ajv": "^6.7.0",
     "chai": "^4.2.0",
