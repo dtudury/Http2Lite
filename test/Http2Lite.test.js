@@ -1,6 +1,7 @@
 /* globals describe it */
 const H2LSession = require('../lib/H2LSession')
 const { H2LSTREAM, FRAME, DATA, HEADERS, PING } = require('../lib/constants')
+const ui8aHelpers = require('../lib/utils/ui8aHelpers')
 const { expect } = require('chai')
 
 describe('H2LSession', () => {
@@ -24,36 +25,21 @@ describe('H2LSession', () => {
         serverHeadersByStream[h2LStream.streamId] = Object.assign(oldHeaders, headers)
       })
       h2LStream.on(DATA, data => {
-        const oldData = serverDataByStream[h2LStream.streamId] || Buffer.alloc(0)
-        serverDataByStream[h2LStream.streamId] = Buffer.concat([oldData, data])
-      })
-    })
-    describe('#writeHeaders()', () => {
-      const headers1 = { a: 1, b: 2 }
-      const clientReq = client.request()
-      it('should send headers from end to end', () => {
-        clientReq.writeHeaders(headers1, false, false, 0, 1, 0, false)
-        expect(headers1).to.deep.equal(serverHeadersByStream[clientReq.streamId])
-      })
-      const headers2 = { b: 3, c: 4 }
-      it('should override headers when more are sent', () => {
-        clientReq.writeHeaders(headers2)
-        expect(headers1.a).to.equal(serverHeadersByStream[clientReq.streamId].a)
-        expect(headers2.b).to.equal(serverHeadersByStream[clientReq.streamId].b)
-        expect(headers2.c).to.equal(serverHeadersByStream[clientReq.streamId].c)
+        const oldData = serverDataByStream[h2LStream.streamId] || ui8aHelpers.alloc(0)
+        serverDataByStream[h2LStream.streamId] = ui8aHelpers.concat([oldData, data])
       })
     })
     describe('#writeData()', () => {
       const clientReq = client.request()
-      const part1 = Buffer.from('hello ')
+      const part1 = new Uint8Array([1, 2, 3, 4])
       it('should send data from end to end', () => {
         clientReq.writeData(part1)
-        expect(part1.toString()).to.equal(serverDataByStream[clientReq.streamId].toString())
+        expect(part1).to.deep.equal(serverDataByStream[clientReq.streamId])
       })
-      const part2 = Buffer.from('world')
+      const part2 = new Uint8Array([5, 6, 7, 8])
       it('should append data when more is sent', () => {
         clientReq.writeData(part2)
-        expect(Buffer.concat([part1, part2]).toString()).to.equal(serverDataByStream[clientReq.streamId].toString())
+        expect(ui8aHelpers.concat([part1, part2])).to.deep.equal(serverDataByStream[clientReq.streamId])
       })
     })
   })
@@ -61,29 +47,29 @@ describe('H2LSession', () => {
     const client = new H2LSession(1)
     const clientReq = client.request()
     it('should throw when too large of a payload is written', () => {
-      expect(() => clientReq.writeData(Buffer.allocUnsafe(0x1000000))).to.throw()
+      expect(() => clientReq.writeData(ui8aHelpers.allocUnsafe(0x1000000))).to.throw()
     })
   })
   describe('partial and multiple frames', () => {
     const client = new H2LSession(1)
-    let clientOutgoingFrame = Buffer.alloc(0)
+    let clientOutgoingFrame = ui8aHelpers.alloc(0)
     const server = new H2LSession(2)
     const serverDataByStream = {}
     client.on(FRAME, frame => {
-      clientOutgoingFrame = Buffer.concat([clientOutgoingFrame, frame])
+      clientOutgoingFrame = ui8aHelpers.concat([clientOutgoingFrame, frame])
     })
     server.on(H2LSTREAM, h2LStream => {
       h2LStream.on(DATA, (data, flags) => {
-        const oldData = serverDataByStream[h2LStream.streamId] || Buffer.alloc(0)
-        serverDataByStream[h2LStream.streamId] = Buffer.concat([oldData, data])
+        const oldData = serverDataByStream[h2LStream.streamId] || ui8aHelpers.alloc(0)
+        serverDataByStream[h2LStream.streamId] = ui8aHelpers.concat([oldData, data])
       })
     })
     const clientReq = client.request()
-    clientReq.writeData(Buffer.from('a'), false, 5)
-    clientReq.writeData(Buffer.from('b'))
-    clientReq.writeData(Buffer.from('c'))
-    clientReq.writeData(Buffer.from('d'))
-    clientReq.writeData(Buffer.from('e'), true)
+    clientReq.writeData(new Uint8Array([1]), false, 5)
+    clientReq.writeData(new Uint8Array([2]))
+    clientReq.writeData(new Uint8Array([3]))
+    clientReq.writeData(new Uint8Array([4]))
+    clientReq.writeData(new Uint8Array([5]), true)
     const barelyStarted = 10
     const halfway = Math.round(clientOutgoingFrame.length / 2)
     it('should understand nothing without the header', () => {
@@ -91,11 +77,11 @@ describe('H2LSession', () => {
     })
     it('should understand the first 2 when sent the first 2.5 frames concatenated', () => {
       server.writeFrame(clientOutgoingFrame.slice(barelyStarted, halfway))
-      expect(serverDataByStream[clientReq.streamId].toString()).to.equal('ab')
+      expect(serverDataByStream[clientReq.streamId]).to.deep.equal(new Uint8Array([1, 2]))
     })
     it('should understand all 5 when sent the remaining 2.5 frames concatenated', () => {
       server.writeFrame(clientOutgoingFrame.slice(halfway))
-      expect(serverDataByStream[clientReq.streamId].toString()).to.equal('abcde')
+      expect(serverDataByStream[clientReq.streamId]).to.deep.equal(new Uint8Array([1, 2, 3, 4, 5]))
     })
   })
   describe('padding', () => {
@@ -115,7 +101,7 @@ describe('H2LSession', () => {
       })
     })
     const clientReq = client.request()
-    const headers = { a: 1 }
+    const headers = new Uint8Array([1, 2, 3, 4])
     clientReq.writeHeaders(headers)
     it('should default to no padding', () => {
       expect(receivedFlags[0].isPadded).to.equal(false)
@@ -152,7 +138,8 @@ describe('H2LSession', () => {
         receivedPriorities.push(priority)
       })
     })
-    const headers = { a: 1 }
+
+    const headers = new Uint8Array([1, 2, 3, 4])
     const clientReq = client.request()
     const sentPriority = 20
     const sentStreamDependency = 100
@@ -163,6 +150,14 @@ describe('H2LSession', () => {
       expect(sentPriority).to.equal(priority)
       expect(sentStreamDependency).to.equal(streamDependency)
       expect(sentIsExclusive).to.equal(isExclusive)
+    })
+    const sentIsExclusive2 = false
+    clientReq.writeHeaders(headers, false, false, 0, sentPriority, sentStreamDependency, sentIsExclusive2)
+    it('should send the prioritization data (not exclusive)', () => {
+      const { priority, streamDependency, isExclusive } = receivedPriorities[1]
+      expect(sentPriority).to.equal(priority)
+      expect(sentStreamDependency).to.equal(streamDependency)
+      expect(sentIsExclusive2).to.equal(isExclusive)
     })
     it('should send the payload unchanged regardless of priority', () => {
       expect(receivedHeaders[0]).to.deep.equal(headers)
@@ -183,8 +178,8 @@ describe('H2LSession', () => {
       receivedFlags.push(flags)
     })
     const payloads = [
-      Buffer.from([1, 2, 3, 4, 5, 6, 7, 8]),
-      Buffer.from([8, 7, 6, 5, 4, 3, 2, 1])
+      new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
+      new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1])
     ]
     client.h2LStream.writePing(payloads[0])
     client.h2LStream.writePing(payloads[1], true)
