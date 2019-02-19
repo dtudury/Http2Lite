@@ -5,6 +5,7 @@
 [![Dependency Status](https://david-dm.org/dtudury/Http2Lite.svg)](https://david-dm.org/dtudury/Http2Lite)
 [![devDependencies Status](https://david-dm.org/dtudury/Http2Lite/dev-status.svg)](https://david-dm.org/dtudury/Http2Lite?type=dev)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Maintainability](https://api.codeclimate.com/v1/badges/c325ed082797477c14fc/maintainability)](https://codeclimate.com/github/dtudury/Http2Lite/maintainability)
 
 # Http2Lite
 tools for DIY http2
