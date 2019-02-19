@@ -1,5 +1,5 @@
 /* globals describe it */
-const Emitter = require('../lib/Emitter')
+const Emitter = require('../lib/utils/Emitter')
 const { expect } = require('chai')
 
 describe('Emitter', () => {
