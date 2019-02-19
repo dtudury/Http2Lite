@@ -1,9 +1,13 @@
 {
   "name": "http2lite",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "http2 in browser streams",
   "scripts": {
-    "test": "standard && nyc --check-coverage --lines 100 --reporter=html --reporter=text mocha && nyc report --reporter=text-lcov | coveralls"
+    "build": "npm run doc",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "doc": "documentation readme lib/** --section=API",
+    "prepublish": "npm run build",
+    "test": "standard && nyc --check-coverage --lines 100 --reporter=html --reporter=text mocha"
   },
   "repository": {
     "type": "git",
@@ -19,6 +23,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "coveralls": "^3.0.2",
+    "documentation": "^9.1.1",
     "mocha": "^6.0.0",
     "nyc": "^13.3.0",
     "standard": "^12.0.1"
