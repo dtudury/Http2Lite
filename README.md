@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/http2lite.svg)](https://badge.fury.io/js/http2lite)
 [![Build Status](https://travis-ci.com/dtudury/Http2Lite.svg?branch=master)](https://travis-ci.com/dtudury/Http2Lite)
 [![Coverage Status](https://coveralls.io/repos/github/dtudury/Http2Lite/badge.svg?branch=master)](https://coveralls.io/github/dtudury/Http2Lite?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/dtudury/Http2Lite/badge.svg)](https://snyk.io/test/github/dtudury/Http2Lite)
