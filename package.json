@@ -7,7 +7,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "doc": "documentation readme ./lib/H2LSession.js --section=API",
     "prepublish": "npm run build",
-    "test": "standard && nyc --check-coverage --lines 100 --reporter=html --reporter=text mocha"
+    "test": "nyc --check-coverage --lines 100 --reporter=html --reporter=text mocha && standard"
   },
   "repository": {
     "type": "git",
