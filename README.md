@@ -17,11 +17,13 @@ zero dependency tools for DIY http2 in node or browser (with a build tool that u
 
 ### TODO
 
+-   more documentation
+-   fix "code smells"
 -   put something meaningful into the readme
 -   build a simple default hpack context
 -   add an example (or two)
+-   fix generated API documentation
 
-(documentation.js is magical, but not miraculous... it can't document an API before it exists)
 
 ## API
 
