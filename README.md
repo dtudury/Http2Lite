@@ -36,34 +36,48 @@ zero dependency tools for DIY http2 in node or browser (with a build tool that u
     -   [Parameters](#parameters-1)
 -   [writeFrame](#writeframe)
     -   [Parameters](#parameters-2)
--   [Priority](#priority)
+-   [Request](#request)
     -   [Properties](#properties)
+-   [decodeRequest](#decoderequest)
+    -   [Parameters](#parameters-3)
+-   [encodeRequest](#encoderequest)
+    -   [Parameters](#parameters-4)
+-   [decodeFrameHeader](#decodeframeheader)
+    -   [Parameters](#parameters-5)
 -   [FrameHeader](#frameheader)
     -   [Properties](#properties-1)
--   [Http](#http)
-    -   [Properties](#properties-2)
--   [Flags](#flags)
-    -   [Properties](#properties-3)
--   [frameToHttp](#frametohttp)
-    -   [Parameters](#parameters-3)
--   [alloc](#alloc)
-    -   [Parameters](#parameters-4)
--   [allocUnsafe](#allocunsafe)
-    -   [Parameters](#parameters-5)
--   [readUInt8](#readuint8)
+-   [encodeFrameHeader](#encodeframeheader)
     -   [Parameters](#parameters-6)
--   [readUInt24BE](#readuint24be)
+-   [Flags](#flags)
+    -   [Properties](#properties-2)
+-   [decodeFlags](#decodeflags)
     -   [Parameters](#parameters-7)
--   [readUInt32BE](#readuint32be)
+-   [decodePriority](#decodepriority)
     -   [Parameters](#parameters-8)
--   [writeUInt8](#writeuint8)
+-   [Priority](#priority)
+    -   [Properties](#properties-3)
+-   [encodePriority](#encodepriority)
     -   [Parameters](#parameters-9)
--   [writeUInt24BE](#writeuint24be)
+-   [frameToHttp](#frametohttp)
     -   [Parameters](#parameters-10)
--   [writeUInt32BE](#writeuint32be)
+-   [alloc](#alloc)
     -   [Parameters](#parameters-11)
--   [concat](#concat)
+-   [allocUnsafe](#allocunsafe)
     -   [Parameters](#parameters-12)
+-   [readUInt8](#readuint8)
+    -   [Parameters](#parameters-13)
+-   [readUInt24BE](#readuint24be)
+    -   [Parameters](#parameters-14)
+-   [readUInt32BE](#readuint32be)
+    -   [Parameters](#parameters-15)
+-   [writeUInt8](#writeuint8)
+    -   [Parameters](#parameters-16)
+-   [writeUInt24BE](#writeuint24be)
+    -   [Parameters](#parameters-17)
+-   [writeUInt32BE](#writeuint32be)
+    -   [Parameters](#parameters-18)
+-   [concat](#concat)
+    -   [Parameters](#parameters-19)
 
 ### constructor
 
@@ -93,15 +107,41 @@ Emit any new http messages. Emit new streams when necessary.
 
 -   `frame` **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** partial and/or multiple encoded http messages
 
-### Priority
+### Request
 
 Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
 #### Properties
 
--   `priority` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `streamDependency` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `isExclusive` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+-   `type` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `streamId` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `padLength` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `payload` **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
+-   `bytesRead` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+
+### decodeRequest
+
+#### Parameters
+
+-   `ui8a` **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
+
+Returns **[Request](#request)** 
+
+### encodeRequest
+
+#### Parameters
+
+-   `request` **[Request](#request)** 
+
+Returns **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
+
+### decodeFrameHeader
+
+#### Parameters
+
+-   `ui8a` **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
+
+Returns **[FrameHeader](#frameheader)** 
 
 ### FrameHeader
 
@@ -112,20 +152,14 @@ Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 -   `streamId` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
 -   `type` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
 -   `length` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `flags` **[Flags](#flags)** 
 
-### Http
+### encodeFrameHeader
 
-Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
+#### Parameters
 
-#### Properties
+-   `frameHeader` **[FrameHeader](#frameheader)** 
 
--   `type` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `flags` **[Flags](#flags)** 
--   `streamId` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `payload` **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
--   `priority` **[Priority](#priority)** 
--   `bytesRead` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+Returns **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
 
 ### Flags
 
@@ -133,11 +167,45 @@ Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 #### Properties
 
--   `endsStream` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+-   `endStream` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
 -   `isAck` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `endsHeaders` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+-   `endHeaders` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
 -   `isPadded` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
 -   `isPriority` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+
+### decodeFlags
+
+#### Parameters
+
+-   `ui8` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+
+Returns **[Flags](#flags)** 
+
+### decodePriority
+
+#### Parameters
+
+-   `ui8a` **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
+
+Returns **[Priority](#priority)** 
+
+### Priority
+
+Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+#### Properties
+
+-   `priority` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `streamDependency` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `isExclusive` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+
+### encodePriority
+
+#### Parameters
+
+-   `priority` **[Priority](#priority)** 
+
+Returns **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
 
 ### frameToHttp
 
@@ -145,7 +213,7 @@ Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 -   `frame` **[Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)** 
 
-Returns **[Http](#http)** 
+Returns **Http** 
 
 ### alloc
 
