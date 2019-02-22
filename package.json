@@ -1,6 +1,6 @@
 {
   "name": "http2lite",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "http2 in browser streams",
   "scripts": {
     "build": "npm run doc",
