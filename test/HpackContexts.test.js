@@ -19,9 +19,6 @@ describe('HpackContext', () => {
       let hdc = new HpackDecodingContext()
       let decoding = hdc.decode(encoding)
       expect(decoding).to.deep.equal(headers)
-      expect(() => {
-        hdc.decode(new Uint8Array([0]))
-      }).to.throw()
     })
   })
   describe('_evict', () => {
