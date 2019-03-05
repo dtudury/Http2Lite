@@ -1,13 +1,11 @@
 /* globals describe it */
 const { expect } = require('chai')
-const HpackEncodingContext = require('../lib/utils/HpackEncodingContext')
-const HpackDecodingContext = require('../lib/utils/HpackDecodingContext')
+const { HpackEncodingContext, HpackDecodingContext } = require('../lib/utils/HpackContexts')
 
-describe.only('HpackEncodingContext', () => {
-  describe('encode', () => {
-    it('encodes headers', () => {
-      let hec = new HpackEncodingContext()
-      let encoding = hec.encode([
+describe('HpackContext', () => {
+  describe('encode/decode', () => {
+    it('encodes and decodes headers', () => {
+      let headers = [
         { name: ':path', value: '/index.html' },
         { name: ':path', value: '/index.htm' },
         { name: ':path', value: '/' },
@@ -15,12 +13,19 @@ describe.only('HpackEncodingContext', () => {
         { name: ':pat', value: '/' },
         { name: ':pat', value: '/' },
         { name: ':pat', value: '/' }
-      ])
-      console.log(encoding)
+      ]
+      let hec = new HpackEncodingContext()
+      let encoding = hec.encode(headers)
       let hdc = new HpackDecodingContext()
       let decoding = hdc.decode(encoding)
-      console.log(decoding)
-      // expect(decodeInteger(new Uint8Array([0x0a]), 3).value).to.equal(10)
+      expect(decoding).to.deep.equal(headers)
+      expect(() => {
+        hdc.decode(new Uint8Array([0]))
+      }).to.throw()
+    })
+  })
+  describe('_evict', () => {
+    it('shrinks table size appropriately', () => {
     })
   })
 })
